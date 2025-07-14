@@ -175,7 +175,6 @@
             box-shadow: 0 5px 25px rgba(0,0,0,0.1);
             background-color: #e5e7eb;
             touch-action: none; /* Important for custom touch handling */
-            transform: translateZ(0); /* Force GPU rendering for better performance */
         }
         .profile-guide-overlay { border: 3px dashed rgba(255, 255, 255, 0.9); box-shadow: 0 0 15px rgba(0,0,0,0.6); position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; height: 0; padding-bottom: 100%; pointer-events: none; box-sizing: border-box; z-index: 5; }
         .reels-guide-overlay { border: 3px dashed rgba(255, 82, 82, 0.9); position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; box-sizing: border-box; border-radius: 1rem; z-index: 5; }
@@ -291,7 +290,7 @@
         const imageState = {
             image: null, scale: 1, minScale: 1, offsetX: 0, offsetY: 0,
             isDragging: false, startX: 0, startY: 0,
-            initialPinchDistance: 0, initialScale: 1 // For pinch-to-zoom
+            initialPinchDistance: 0, initialScale: 1
         };
         let backgroundType = 'color';
 
@@ -301,6 +300,14 @@
         previewCanvas.height = CANVAS_HEIGHT;
         previewCanvas.style.width = '100%';
         previewCanvas.style.height = '100%';
+
+        // --- Optimized Blur Canvas Setup ---
+        const blurCanvas = document.createElement('canvas');
+        const blurCtx = blurCanvas.getContext('2d');
+        const DOWNSAMPLE_FACTOR = 4; // Higher number = faster but more pixelated blur. 4 is a good balance.
+        blurCanvas.width = CANVAS_WIDTH / DOWNSAMPLE_FACTOR;
+        blurCanvas.height = CANVAS_HEIGHT / DOWNSAMPLE_FACTOR;
+
 
         // --- Functions ---
         function typeSlogan() {
@@ -372,24 +379,34 @@
 
         function drawBlurredBackground() {
             if (!imageState.image) return;
-            ctx.save();
-            ctx.filter = `blur(${blurSlider.value}px)`;
             const img = imageState.image;
-            const canvasAspect = CANVAS_WIDTH / CANVAS_HEIGHT;
-            const imgAspect = img.width / img.height;
-            let drawWidth, drawHeight, sx, sy;
-            if (imgAspect > canvasAspect) {
-                drawHeight = CANVAS_HEIGHT;
-                drawWidth = drawHeight * imgAspect;
-                sx = (drawWidth - CANVAS_WIDTH) / -2;
-                sy = 0;
+
+            // 1. Apply blur filter to the small canvas context.
+            const blurValue = blurSlider.value / DOWNSAMPLE_FACTOR;
+            blurCtx.filter = `blur(${blurValue}px)`;
+
+            // 2. Draw the original image (scaled down) onto the small, filtered canvas.
+            const aspect = img.width / img.height;
+            const canvasAspect = blurCanvas.width / blurCanvas.height;
+            let drawWidth, drawHeight, x, y;
+
+            if (aspect > canvasAspect) {
+                drawHeight = blurCanvas.height;
+                drawWidth = drawHeight * aspect;
+                x = (drawWidth - blurCanvas.width) / -2;
+                y = 0;
             } else {
-                drawWidth = CANVAS_WIDTH;
-                drawHeight = drawWidth / imgAspect;
-                sx = 0;
-                sy = (drawHeight - CANVAS_HEIGHT) / -2;
+                drawWidth = blurCanvas.width;
+                drawHeight = drawWidth / aspect;
+                x = 0;
+                y = (drawHeight - blurCanvas.height) / -2;
             }
-            ctx.drawImage(img, sx, sy, drawWidth, drawHeight);
+            blurCtx.drawImage(img, x, y, drawWidth, drawHeight);
+
+            // 3. Draw the small, blurred canvas onto the main canvas, scaling it up.
+            ctx.save();
+            ctx.imageSmoothingEnabled = true;
+            ctx.drawImage(blurCanvas, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
             ctx.restore();
         }
 
@@ -528,14 +545,13 @@
         });
         
         // Throttled redraw for better performance on mobile
-        let canRedraw = true;
+        let throttleTimer;
         const throttledRedraw = () => {
-            if (!canRedraw) return;
-            redrawCanvas();
-            canRedraw = false;
-            setTimeout(() => {
-                canRedraw = true;
-            }, 50); // Approx 20fps
+            if (throttleTimer) return;
+            throttleTimer = requestAnimationFrame(() => {
+                redrawCanvas();
+                throttleTimer = null;
+            });
         };
 
         bgTypeColorBtn.addEventListener('click', () => switchBackgroundType('color'));
