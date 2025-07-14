@@ -238,7 +238,7 @@
                                 <input id="color-picker" type="color" value="#111827" class="w-full h-12 p-1 border border-gray-300 rounded-lg cursor-pointer">
                             </div>
                             <div id="blur-slider-container" class="hidden">
-                                <label for="blur-slider" class="block mb-2 text-sm font-medium text-gray-600">میزان ماتی</label>
+                                <label for="blur-slider" class="block mb-2 text-sm font-medium text-gray-600">میزان ماتی: <span id="blur-value">20</span></label>
                                 <input id="blur-slider" type="range" min="0" max="50" value="20" class="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer">
                             </div>
                         </div>
@@ -281,6 +281,7 @@
         const colorPickerContainer = document.getElementById('color-picker-container');
         const blurSliderContainer = document.getElementById('blur-slider-container');
         const blurSlider = document.getElementById('blur-slider');
+        const blurValueSpan = document.getElementById('blur-value');
         const sloganEl = document.getElementById('slogan');
 
         const ctx = previewCanvas.getContext('2d');
@@ -304,7 +305,7 @@
         // --- Optimized Blur Canvas Setup ---
         const blurCanvas = document.createElement('canvas');
         const blurCtx = blurCanvas.getContext('2d');
-        const DOWNSAMPLE_FACTOR = 4; // Higher number = faster but more pixelated blur. 4 is a good balance.
+        const DOWNSAMPLE_FACTOR = 8; // Increased for more performance
         blurCanvas.width = CANVAS_WIDTH / DOWNSAMPLE_FACTOR;
         blurCanvas.height = CANVAS_HEIGHT / DOWNSAMPLE_FACTOR;
 
@@ -380,12 +381,9 @@
         function drawBlurredBackground() {
             if (!imageState.image) return;
             const img = imageState.image;
-
-            // 1. Apply blur filter to the small canvas context.
             const blurValue = blurSlider.value / DOWNSAMPLE_FACTOR;
             blurCtx.filter = `blur(${blurValue}px)`;
-
-            // 2. Draw the original image (scaled down) onto the small, filtered canvas.
+            
             const aspect = img.width / img.height;
             const canvasAspect = blurCanvas.width / blurCanvas.height;
             let drawWidth, drawHeight, x, y;
@@ -402,8 +400,7 @@
                 y = (drawHeight - blurCanvas.height) / -2;
             }
             blurCtx.drawImage(img, x, y, drawWidth, drawHeight);
-
-            // 3. Draw the small, blurred canvas onto the main canvas, scaling it up.
+            
             ctx.save();
             ctx.imageSmoothingEnabled = true;
             ctx.drawImage(blurCanvas, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -485,7 +482,7 @@
             const zoomIntensity = 0.001;
             const scaleAmount = -e.deltaY * zoomIntensity;
             let newScale = imageState.scale + scaleAmount;
-            const maxScale = imageState.minScale * 3; // Max zoom 3x
+            const maxScale = imageState.minScale * 3;
             newScale = Math.max(imageState.minScale, Math.min(newScale, maxScale));
             imageState.scale = newScale;
             applyConstraints();
@@ -519,7 +516,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             typeSlogan();
             
-            // Dynamically create and append the manifest link
             const manifestDataScript = document.getElementById('webmanifest-json');
             if (manifestDataScript) {
                 try {
@@ -544,20 +540,18 @@
             typeSlogan();
         });
         
-        // Throttled redraw for better performance on mobile
-        let throttleTimer;
-        const throttledRedraw = () => {
-            if (throttleTimer) return;
-            throttleTimer = requestAnimationFrame(() => {
-                redrawCanvas();
-                throttleTimer = null;
-            });
-        };
-
         bgTypeColorBtn.addEventListener('click', () => switchBackgroundType('color'));
         bgTypeBlurBtn.addEventListener('click', () => switchBackgroundType('blur'));
-        colorPicker.addEventListener('input', throttledRedraw);
-        blurSlider.addEventListener('input', throttledRedraw);
+        
+        // Use 'change' for blur slider to update only on release
+        blurSlider.addEventListener('change', redrawCanvas);
+        blurSlider.addEventListener('input', () => {
+            blurValueSpan.textContent = blurSlider.value;
+        });
+
+        // 'input' is fine for color picker as it's not performance intensive
+        colorPicker.addEventListener('input', redrawCanvas);
+        
         downloadBtn.addEventListener('click', downloadImage);
         
         // Mouse and Touch Listeners
