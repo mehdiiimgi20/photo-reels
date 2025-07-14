@@ -68,7 +68,7 @@
             padding: 20px;
             display: flex;
             justify-content: center;
-            align-items: flex-start;
+            align-items: center; /* Center vertically */
             min-height: 100vh;
         }
 
@@ -76,26 +76,27 @@
             width: 100%;
             max-width: 900px; /* Increased width for editor view */
             background-color: var(--surface-color);
-            padding: 30px 40px;
+            padding: 50px 40px; /* Increased vertical padding */
             border-radius: 20px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-            position: relative;
         }
 
-        .app-logo {
-            position: absolute;
-            top: 25px;
-            left: 35px;
-        }
-        .app-logo img {
-            width: 80px; /* Adjusted size */
-            height: auto;
-        }
-
+        /* Centered Header Layout */
         header {
             text-align: center;
             margin-bottom: 30px;
         }
+        
+        .app-logo {
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .app-logo img {
+            width: 80px;
+            height: auto;
+        }
+
         header h1 {
             color: var(--primary-color);
             font-weight: 700;
@@ -193,12 +194,14 @@
     <div id="app-container">
         <!-- View 1: Upload Screen -->
         <div id="upload-view" class="container">
-            <div class="app-logo">
-                <img src="https://biaupload.com/do.php?imgf=org-0ec5393860b91.png" alt="Zima Logo">
-            </div>
             <header>
-                <h1>سازنده کاور ریلز</h1>
-                <p id="slogan"></p>
+                <div class="app-logo">
+                    <img src="https://biaupload.com/do.php?imgf=org-0ec5393860b91.png" alt="Zima Logo">
+                </div>
+                <div class="header-text">
+                    <h1>سازنده کاور ریلز</h1>
+                    <p id="slogan"></p>
+                </div>
             </header>
             <main>
                 <label for="image-upload" class="upload-box">
