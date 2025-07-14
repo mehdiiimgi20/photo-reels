@@ -8,12 +8,12 @@
     <!-- Link to Vazirmatn font from Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
 
-    <!-- Favicon and Apple Touch Icon for Add to Home Screen - UPDATED -->
+    <!-- Favicon and Apple Touch Icon for Add to Home Screen -->
     <link rel="apple-touch-icon" sizes="180x180" href="https://biaupload.com/do.php?imgf=org-24cd8968890f1.png">
     <link rel="icon" type="image/png" sizes="32x32" href="https://biaupload.com/do.php?imgf=org-24cd8968890f1.png">
     <link rel="icon" type="image/png" sizes="16x16" href="https://biaupload.com/do.php?imgf=org-24cd8968890f1.png">
     
-    <!-- Web App Manifest for PWA features - UPDATED -->
+    <!-- Web App Manifest for PWA features -->
     <script type="application/json" id="webmanifest-json">
     {
       "name": "سازنده کاور ریلز زیما",
@@ -93,7 +93,7 @@
         }
 
         .app-logo img {
-            width: 100px; /* Increased logo size */
+            width: 100px;
             height: auto;
         }
 
@@ -175,6 +175,7 @@
             box-shadow: 0 5px 25px rgba(0,0,0,0.1);
             background-color: #e5e7eb;
             touch-action: none; /* Important for custom touch handling */
+            transform: translateZ(0); /* Force GPU rendering for better performance */
         }
         .profile-guide-overlay { border: 3px dashed rgba(255, 255, 255, 0.9); box-shadow: 0 0 15px rgba(0,0,0,0.6); position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; height: 0; padding-bottom: 100%; pointer-events: none; box-sizing: border-box; z-index: 5; }
         .reels-guide-overlay { border: 3px dashed rgba(255, 82, 82, 0.9); position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; box-sizing: border-box; border-radius: 1rem; z-index: 5; }
@@ -525,10 +526,22 @@
             imageUpload.value = '';
             typeSlogan();
         });
+        
+        // Throttled redraw for better performance on mobile
+        let canRedraw = true;
+        const throttledRedraw = () => {
+            if (!canRedraw) return;
+            redrawCanvas();
+            canRedraw = false;
+            setTimeout(() => {
+                canRedraw = true;
+            }, 50); // Approx 20fps
+        };
+
         bgTypeColorBtn.addEventListener('click', () => switchBackgroundType('color'));
         bgTypeBlurBtn.addEventListener('click', () => switchBackgroundType('blur'));
-        colorPicker.addEventListener('input', redrawCanvas);
-        blurSlider.addEventListener('input', redrawCanvas);
+        colorPicker.addEventListener('input', throttledRedraw);
+        blurSlider.addEventListener('input', throttledRedraw);
         downloadBtn.addEventListener('click', downloadImage);
         
         // Mouse and Touch Listeners
