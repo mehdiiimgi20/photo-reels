@@ -8,12 +8,12 @@
     <!-- Link to Vazirmatn font from Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
 
-    <!-- Favicon and Apple Touch Icon for Add to Home Screen -->
-    <link rel="apple-touch-icon" sizes="180x180" href="https://biaupload.com/do.php?imgf=org-0ec5393860b91.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="https://biaupload.com/do.php?imgf=org-0ec5393860b91.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="https://biaupload.com/do.php?imgf=org-0ec5393860b91.png">
+    <!-- Favicon and Apple Touch Icon for Add to Home Screen - UPDATED -->
+    <link rel="apple-touch-icon" sizes="180x180" href="https://biaupload.com/do.php?imgf=org-24cd8968890f1.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://biaupload.com/do.php?imgf=org-24cd8968890f1.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://biaupload.com/do.php?imgf=org-24cd8968890f1.png">
     
-    <!-- Web App Manifest for PWA features -->
+    <!-- Web App Manifest for PWA features - UPDATED -->
     <script type="application/json" id="webmanifest-json">
     {
       "name": "سازنده کاور ریلز زیما",
@@ -25,12 +25,12 @@
       "description": "ابزار هوشمند ساخت کاور ریلز اینستاگرام",
       "icons": [
         {
-          "src": "https://biaupload.com/do.php?imgf=org-0ec5393860b91.png",
+          "src": "https://biaupload.com/do.php?imgf=org-24cd8968890f1.png",
           "sizes": "192x192",
           "type": "image/png"
         },
         {
-          "src": "https://biaupload.com/do.php?imgf=org-0ec5393860b91.png",
+          "src": "https://biaupload.com/do.php?imgf=org-24cd8968890f1.png",
           "sizes": "512x512",
           "type": "image/png"
         }
@@ -197,7 +197,7 @@
         <div id="upload-view" class="container">
             <header>
                 <div class="app-logo">
-                    <img src="https://biaupload.com/do.php?imgf=org-0ec5393860b91.png" alt="Zima Logo">
+                    <img src="https://biaupload.com/do.php?imgf=org-24cd8968890f1.png" alt="Zima Logo">
                 </div>
                 <div class="header-text">
                     <h1>سازنده کاور ریلز</h1>
@@ -493,7 +493,7 @@
         function downloadImage() {
             const link = document.createElement('a');
             link.download = 'instagram-reel-cover.jpg';
-            link.href = previewCanvas.toDataURL('image/jpeg', 0.9);
+            link.href = previewCanvas.toDataURL('jpeg', 0.9);
             link.click();
         }
         
