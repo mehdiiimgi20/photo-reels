@@ -305,7 +305,7 @@
         // --- Optimized Blur Canvas Setup ---
         const blurCanvas = document.createElement('canvas');
         const blurCtx = blurCanvas.getContext('2d');
-        const DOWNSAMPLE_FACTOR = 8; // Increased for more performance
+        const DOWNSAMPLE_FACTOR = 8;
         blurCanvas.width = CANVAS_WIDTH / DOWNSAMPLE_FACTOR;
         blurCanvas.height = CANVAS_HEIGHT / DOWNSAMPLE_FACTOR;
 
@@ -543,7 +543,7 @@
         bgTypeColorBtn.addEventListener('click', () => switchBackgroundType('color'));
         bgTypeBlurBtn.addEventListener('click', () => switchBackgroundType('blur'));
         
-        // Use 'change' for blur slider to update only on release
+        // Use 'change' for blur slider to update only on release for performance
         blurSlider.addEventListener('change', redrawCanvas);
         blurSlider.addEventListener('input', () => {
             blurValueSpan.textContent = blurSlider.value;
